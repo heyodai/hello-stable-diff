@@ -26,6 +26,11 @@ prompt:
 	python3 src/prompt_cli.py; \
 
 
+# Run the images CLI
+image:
+	source venv/bin/activate; \
+	python3 src/image_cli.py; \
+
 # Run the tests
 test:
 	source venv/bin/activate; \
