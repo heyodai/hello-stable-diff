@@ -6,9 +6,10 @@ Based on: https://huggingface.co/docs/diffusers/optimization/mps
 
 from diffusers import StableDiffusionPipeline
 import time
+import os
 
 class ImageGen:
-    def __init__(self, is_nsfw_forbidden = False) -> None:
+    def __init__(self, is_nsfw_forbidden = True) -> None:
         """
         Initialize the image generator.
         
@@ -30,8 +31,8 @@ class ImageGen:
         # sometimes block images that are not NSFW.
         #
         # @see https://github.com/CompVis/stable-diffusion/issues/239
-        if is_nsfw_forbidden:
-            self.pipe.nsfw_filter = lambda images, **kwargs: (images, False)
+        if not is_nsfw_forbidden:
+            self.pipe.safety_checker = lambda images, **kwargs: (images, False)
 
         # Enable sliced attention computation.
         #
@@ -95,6 +96,9 @@ class ImageGen:
                 prompt = prompt[:100]
 
                 file_name = str(epoch_time) + "_" + prompt + ".png"
-                image.save(file_name)
+                if not os.path.exists('output'):
+                    os.makedirs('output')
+
+                image.save('output/' + file_name)
        
         return images
