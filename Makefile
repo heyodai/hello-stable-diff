@@ -13,7 +13,6 @@
 # @see https://stackoverflow.com/questions/74737897/
 # (Yes, that's my own Stack Overflow question :P)
 env:
-	\
 	python3 -m venv venv; \
 	source venv/bin/activate; \
 	pip install --upgrade pip; \
@@ -52,3 +51,14 @@ venv/bin/activate: requirements.txt
 clean:
 	rm -rf __pycache__
 	rm -rf venv
+
+# Clean up everything, including the output directory
+clean-all:
+	rm -rf __pycache__
+	rm -rf venv
+	rm -rf output
+
+# Update requirements.txt
+requirements:
+	source venv/bin/activate; \
+	pip freeze > requirements.txt; \
