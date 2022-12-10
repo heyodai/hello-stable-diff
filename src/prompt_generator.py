@@ -10,7 +10,7 @@ tokenizer = AutoTokenizer.from_pretrained("Gustavosta/MagicPrompt-Stable-Diffusi
 model = AutoModelForCausalLM.from_pretrained("Gustavosta/MagicPrompt-Stable-Diffusion")
 
 # ask the user for their prompt
-prompt = input("Enter your prompt: ")
+prompt = input("Enter your prompt: \n\n")
 
 # tokenize the prompt
 tokenized_prompt = tokenizer.encode(prompt, return_tensors="pt")

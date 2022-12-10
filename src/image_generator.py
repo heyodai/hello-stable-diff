@@ -10,7 +10,7 @@ import time
 pipe = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5")
 pipe = pipe.to("mps")
 
-prompt = "gopro filming an underwater sunken mall"
+prompt = "crying on deena johnson's shoulder, crescent moon, radiant light, art nouveau, ornate, intricate, elegant, volumetric lighting, scenery, digital painting, highly detailed, artstation, sharp focus, illustration, concept art, ruan jia, steve mccurry"
 
 # Toggle the NSFW filter
 #
@@ -18,7 +18,7 @@ prompt = "gopro filming an underwater sunken mall"
 # inappropriate for the general public. However, it is not perfect and can
 # sometimes block images that are not NSFW. If you wish to disable the filter,
 # set the following variable to False.
-pipe.nsfw_filter = True
+pipe.nsfw_filter = False
  
 # Enable sliced attention computation.
 #
@@ -39,7 +39,7 @@ pipe.enable_attention_slicing()
 _ = pipe(prompt, num_inference_steps=1)
 
 # Results match those from the CPU device after the warmup pass.
-images = pipe(prompt, num_images_per_prompt=1, height=512, width=512).images
+images = pipe(prompt, num_images_per_prompt=1, height=512, width=512, requires_safety_checker=False).images
 
 # loop through images
 for image in images:
