@@ -78,24 +78,31 @@ class ImageGen:
         #
         # It takes about 30 seconds to run.
         _ = self.pipe(prompt, num_inference_steps = num_inference_steps)
+ 
+        # Generate the images
+        #
+        # In theory we should be able to just pass num_images_per_prompt to the pipe, but
+        # this doesn't work. Hugging Face says that this is a bug in the MPS implementation
+        # of the model. So, we have to run the pipe in a loop.
+        #
+        # @see https://huggingface.co/docs/diffusers/optimization/mps footnote 2
+        images = []
+        for i in range(0, num_images_per_prompt):
+            image = self.pipe(
+                prompt, 
+                num_images_per_prompt = 1, 
+                height = height, 
+                width = width).images[0]
 
-        # Results match those from the CPU device after the warmup pass.
-        # TODO: does requires_safety_checker actually do anything?
-        images = self.pipe(
-            prompt, 
-            num_images_per_prompt = num_images_per_prompt, 
-            height = height, 
-            width = width).images
-            # requires_safety_checker = False).images
+            images.append(image)
 
-        # Save the images to disk if requested
-        if save_output:
-            for image in images:
+            # Save the images to disk if requested
+            if save_output:
                 epoch_time = int(time.time())
                 prompt = prompt.replace(" ", "_")
                 prompt = prompt[:100]
 
-                file_name = str(epoch_time) + "_" + prompt + ".png"
+                file_name = "{}_{}_{}.png".format(epoch_time, prompt, "_iteration_" + str(i))
                 if not os.path.exists('output'):
                     os.makedirs('output')
 
