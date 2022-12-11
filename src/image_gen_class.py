@@ -9,13 +9,15 @@ import time
 import os
 
 class ImageGen:
-    def __init__(self, is_nsfw_forbidden = True) -> None:
+    def __init__(self, allow_nsfw = False) -> None:
         """
         Initialize the image generator.
         
         Args:
-            is_nsfw_forbidden : bool
-                If True, the model will not generate NSFW images.
+            allow_nsfw : bool
+                (Optional | Default: False)
+                If False, the model will not generate NSFW images.
+                NSFW prompts will return as a black image.
         
         Returns:
             None
@@ -31,7 +33,7 @@ class ImageGen:
         # sometimes block images that are not NSFW.
         #
         # @see https://github.com/CompVis/stable-diffusion/issues/239
-        if not is_nsfw_forbidden:
+        if allow_nsfw:
             self.pipe.safety_checker = lambda images, **kwargs: (images, False)
 
         # Enable sliced attention computation.
