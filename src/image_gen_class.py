@@ -7,6 +7,7 @@ Based on: https://huggingface.co/docs/diffusers/optimization/mps
 from diffusers import StableDiffusionPipeline
 import time
 import os
+import prompt_gen_class
 
 class ImageGen:
     def __init__(self, allow_nsfw = False) -> None:
@@ -45,7 +46,7 @@ class ImageGen:
         # Per Hugging Face, recommended if your computer has < 64 GB of RAM.
         self.pipe.enable_attention_slicing()
 
-    def generate_images(self, prompt, num_images_per_prompt = 1, save_output = True, height = 512, width = 512, num_inference_steps = 1) -> list:
+    def generate_images(self, prompt, num_images_per_prompt = 1, save_output = True, height = 512, width = 512, num_inference_steps = 1, enhance_prompt = False) -> list:
         """
         Generate images based on the provided prompt.
         
@@ -67,6 +68,9 @@ class ImageGen:
             num_inference_steps : int
                 (Optional | Default: 1)
                 The number of inference steps to use in the warmup pass.
+            enhance_prompt : bool
+                (Optional | Default: False)
+                If True, the prompt will be enhanced via Magic Prompt.
         
         Returns:
             A list of PIL images
@@ -80,6 +84,13 @@ class ImageGen:
         #
         # It takes about 30 seconds to run.
         _ = self.pipe(prompt, num_inference_steps = num_inference_steps)
+
+        # Enhance the prompt if requested
+        if enhance_prompt:
+            pgc = prompt_gen_class.PromptGen()
+            prompts = pgc.generate(prompt)
+        else:
+            prompts = [prompt] # list for consistency
  
         # Generate the images
         #
@@ -90,6 +101,8 @@ class ImageGen:
         # @see https://huggingface.co/docs/diffusers/optimization/mps footnote 2
         images = []
         for i in range(0, num_images_per_prompt):
+            prompt = prompts[i % len(prompts)] # loop through the prompts if necessary
+
             image = self.pipe(
                 prompt, 
                 num_images_per_prompt = 1, 
@@ -104,7 +117,7 @@ class ImageGen:
                 prompt = prompt.replace(" ", "_")
                 prompt = prompt[:100]
 
-                file_name = "{}_{}_{}.png".format(epoch_time, prompt, "_iteration_" + str(i))
+                file_name = "{}_{}_{}.png".format(epoch_time, prompt, "_iteration_" + str(i+1))
                 if not os.path.exists('output'):
                     os.makedirs('output')
 
